@@ -61,7 +61,7 @@ class AirCargoProblem(Problem):
             """
             loads = []
             # TODO create all load ground actions from the domain Load action
-			for a in self.airports:
+            for a in self.airports:
                 for p in self.planes:
                     for c in self.cargos:
                         precond_pos = [expr("At({}, {})".format(c, a)),
@@ -82,7 +82,7 @@ class AirCargoProblem(Problem):
             """
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
-			for a in self.airports:
+            for a in self.airports:
                 for p in self.planes:
                     for c in self.cargos:
                         precond_pos = [expr("At({}, {})".format(p, a)),
@@ -129,6 +129,17 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         possible_actions = []
+        decoded_state = decode_state(state, self.state_map)
+        for action in self.actions_list:
+            is_possible = True
+            for clause in action.precond_pos:
+                if clause not in decoded_state.pos:
+                    is_possible = False
+            for clause in action.precond_neg:
+                if clause not in decoded_state.neg:
+                    is_possible = False
+            if is_possible:
+                possible_actions.append(action)
         return possible_actions
 
     def result(self, state: str, action: Action):
