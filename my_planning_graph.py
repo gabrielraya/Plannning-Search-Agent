@@ -444,7 +444,8 @@ class PlanningGraph():
         """
 
         # TODO test for Competing Needs between nodes
-        return False
+        return (set(node_a1.action.precond_pos) & set(node_a2.action.precond_neg) or
+                set(node_a1.action.precond_neg) & set(node_a2.action.precond_pos))
 
     def update_s_mutex(self, nodeset: set):
         """ Determine and update sibling mutual exclusion for S-level nodes
