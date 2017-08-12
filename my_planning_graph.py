@@ -444,8 +444,13 @@ class PlanningGraph():
         """
 
         # TODO test for Competing Needs between nodes
-        return (set(node_a1.action.precond_pos) & set(node_a2.action.precond_neg) or
-                set(node_a1.action.precond_neg) & set(node_a2.action.precond_pos))
+        for parent_a in node_a1.parents:
+            for parent_b in node_a2.parents:
+                if (self.inconsistent_support_mutex(parent_a, parent_b) or 
+                    self.negation_mutex(parent_a, parent_b) or 
+                    parent_a.is_mutex(parent_b)):
+                    return True
+        return False
 
     def update_s_mutex(self, nodeset: set):
         """ Determine and update sibling mutual exclusion for S-level nodes
@@ -502,11 +507,33 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Support between nodes
-        for parent_a1 in node_s1.parents:
-            for parent_a2 in node_s2.parents:
-                if (not parent_a1.is_mutex(parent_a2) or not parent_a2.is_mutex(parent_a1)):
-                    return False
-        return True
+        parent_node_A = node_s1.parents
+        parent_node_B = node_s2.parents
+        actions_literal_a = []
+        actions_literal_b = []
+
+        for actions_a in parent_node_A:
+            effects_of_a = actions_a.action.effect_add + actions_a.action.effect_rem
+            if node_s1.symbol in effects_of_a and node_s2.symbol in effects_of_a:
+                return False
+            elif node_s1.symbol in effects_of_a:
+                actions_literal_a.append(actions_a)
+            elif node_s2.symbol in effects_of_a:
+                actions_literal_b.append(actions_a)
+        for actions_b in parent_node_B:
+            effects_of_b = actions_b.action.effect_add + actions_b.action.effect_rem
+            if node_s1.symbol in effects_of_b and node_s2.symbol in effects_of_b:
+                return False
+            elif node_s1.symbol in effects_of_b:
+                actions_literal_a.append(actions_b)
+            elif node_s2.symbol in effects_of_b:
+                actions_literal_b.append(actions_b)
+
+        for a in actions_literal_a:
+            for b in actions_literal_b:
+                if a.is_mutex(b) and b.is_mutex(a):
+                    return True
+        return False
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
