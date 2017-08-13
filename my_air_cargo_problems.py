@@ -211,8 +211,10 @@ class AirCargoProblem(Problem):
         executed.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        #count = 0
-        #return count
+        # Heuristic drops all preconditions from actions.
+        # Any goal condition can be achieves in one step 
+        # Count min number of operations s.t. the union of their effects contains goals
+        # Set Cover problem is NP-hard
         goals = set(self.goal)
         actions = set(decode_state(node.state, self.state_map).pos)
         return len(goals - actions)
