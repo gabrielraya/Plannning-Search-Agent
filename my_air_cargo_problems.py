@@ -124,21 +124,25 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
+        # Even though PDDL uses variable to describe actions as "action schema", 
+        # these problems are not solved with First Order Logic. They are solved
+        # with Propositional logic and must therefore be defined with concrete 
+        # (non-variable) actions and literal (non-variable) fluents in state descriptions.
         possible_actions = []
-        decoded_state = decode_state(state, self.state_map)
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).pos_sentence())
         for action in self.actions_list:
             is_possible = True
             for clause in action.precond_pos:
-                if clause not in decoded_state.pos:
+                if clause not in kb.clauses:
                     is_possible = False
             for clause in action.precond_neg:
-                if clause not in decoded_state.neg:
+                if clause in kb.clauses:
                     is_possible = False
             if is_possible:
                 possible_actions.append(action)
         return possible_actions
-
+        
     def result(self, state: str, action: Action):
         """ Return the state that results from executing the given
         action in the given state. The action must be one of
