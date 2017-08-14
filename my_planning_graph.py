@@ -310,16 +310,26 @@ class PlanningGraph():
         #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
+        
+        # Init list of level nodes for the Planning Graph
         level_nodes = []
+        # Init the level S 
         s_level = self.s_levels[level]
+        # Loops through the list of the PlanningProblem valid ground actions
         for action in self.all_actions:
+            # Builds an action Node for this action
             action_node = PgNode_a(action)
+            # Verify preconditions to be satisfied by previous state level
             if action_node.prenodes.issubset(s_level):
+                # Loops through every possible element in the S level
                 for s_node in s_level:
+                    # Make the preceding level's state nodes parents of this reachable action node
                     action_node.parents.add(s_node)
+                    # Make this reachable action node a child of the preceding level's state nodes
                     s_node.children.add(action_node)
+                # Add this reachable action node to the list of action nodes
                 level_nodes.append(action_node)
-
+        # Builds the action level from the reachable action nodes
         self.a_levels.append(set(level_nodes))
 
     def add_literal_level(self, level):
@@ -341,6 +351,7 @@ class PlanningGraph():
         #   parent sets of the S nodes
         level_nodes = []
         for actionNode in self.a_levels[level - 1]:
+            # Get the effect nodes for this preceding action and add them to the level's state nodes
             for add_effect in actionNode.action.effect_add:
                 stateNode = PgNode_s(add_effect, True)
                 actionNode.children.add(stateNode)
