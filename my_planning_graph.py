@@ -349,14 +349,16 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+        
+        # Init list of level nodes for the Planning Graph
         level_nodes = []
+        # Loops through the list of A-levels in the planning graph
         for actionNode in self.a_levels[level - 1]:
             # Get the effect nodes for this preceding action and add them to the level's state nodes
             for add_effect in actionNode.action.effect_add:
                 stateNode = PgNode_s(add_effect, True)
                 actionNode.children.add(stateNode)
-                level_nodes.append(stateNode)
-
+                level_nodes.append(stateNode)  
             for rem_effect in actionNode.action.effect_rem:
                 stateNode = PgNode_s(rem_effect, False)
                 actionNode.children.add(stateNode)
